@@ -8,10 +8,11 @@ import {
   useColorScheme,
   useWindowDimensions,
   View,
-  Image
+  Image,
+  TouchableNativeFeedback
 } from 'react-native';
 
-
+import AntIcon from 'react-native-vector-icons/dist/AntDesign';
 import Geolocation from '@react-native-community/geolocation';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import mapstyle from '../mapstyle';
@@ -53,7 +54,7 @@ function reducer(state, action) {
     }
 }
 
-function CustomMarkers({title, coordinate, description = ''}){
+function CustomMarkers({title, coordinate, description = '', onPress = () => {}}){
     let generated_key = `${Math.ceil(coordinate.longitude)}${Math.floor(coordinate.latitude)}`
     return (<Marker
         key={generated_key}
@@ -61,6 +62,7 @@ function CustomMarkers({title, coordinate, description = ''}){
         title={title}
         description={description}
         pinColor={'navy'}
+        onPress={onPress}
       >
         <Text>{title}</Text>
         <CustomImage/>
@@ -72,6 +74,7 @@ function CustomImage(){
 }
 
 export default function Home(props){
+    const [isVisibleFooter, showFooter] = useState(false)
     const [markersList, setMarkers] = useState([])
     const window = useWindowDimensions()
     const {height,width} = window
@@ -112,6 +115,7 @@ export default function Home(props){
     const onRegionChange = (region) => {
 
     }
+    const onPress = () => showFooter(old => true);
     // useEffect(()=>{
     //     Geolocation.getCurrentPosition(info => console.log(info));
     // })
@@ -129,12 +133,27 @@ export default function Home(props){
                 customMapStyle={mapstyle}     
                 onRegionChange={onRegionChange}       
             >
-            {markersList.map((item,k) => <CustomMarkers key={k} title={item.title} coordinate={item.coordinate} />)}
+            {markersList.map((item,k) => <CustomMarkers 
+                key={k} 
+                title={item.title} 
+                coordinate={item.coordinate}
+                onPress={onPress}
+                 />)}
             </MapView>
 
         </View>
-        <View style={selfStyle.footer}>
-            </View>
+        {isVisibleFooter && <View style={selfStyle.footer}>
+            <TouchableNativeFeedback>
+                <View style={selfStyle.button}>
+                    <AntIcon  name="like2" size={30} />
+                </View>
+            </TouchableNativeFeedback>
+            <TouchableNativeFeedback>
+                <View style={selfStyle.button}>
+                <AntIcon  name="dislike2" size={30} />
+                </View>
+            </TouchableNativeFeedback>
+        </View>}
         </SafeAreaView>
     );
 };
@@ -161,11 +180,19 @@ const selfStyle = StyleSheet.create({
     bottom: 0,
   },
   footer: {
-    ...StyleSheet.absoluteFillObject,
     position: 'absolute',
     bottom: 0,
     height: 100,
+    width: '100%',
     backgroundColor: '#fff',
-    elevation: 1
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16
+  },
+  button: {
+      paddingHorizontal: 8,
+      paddingVertical: 12,
+      borderRadius: 8
   }
 });
