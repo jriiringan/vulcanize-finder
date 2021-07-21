@@ -51,7 +51,7 @@ function reducer(state, action) {
     }
 }
 
-function getMarker(title, coordinate, description = ''){
+function CustomMarkers(title, coordinate, description = ''){
     let generated_key = `${Math.ceil(coordinate.longitude)}${Math.floor(coordinate.latitude)}`
     return (<Marker
         key={generated_key}
@@ -73,13 +73,19 @@ export default function Home(props){
                 if(state.region.latitude !== coords.latitude && state.region.longitude !== coords.longitude){
                     let createdRegion = regionFrom([coords]);
                     dispatch({type: 'UPDATE_REGION', region: createdRegion})
-                    
-                    // dispatch({type: 'UPDATE_MARKERS', 
-                    //     markers: [getMarker('Current Position', {
-                    //         longitude: coords.longitude,
-                    //         latitude: coords.latitude
-                    //     }, 'this is a description')]
-                    // });
+                    // getMarker('Current Position', {
+                    //     longitude: coords.longitude,
+                    //     latitude: coords.latitude
+                    // }, 'this is a description')
+                    dispatch({type: 'UPDATE_MARKERS', 
+                        markers: [{
+                            title: 'This is a title',
+                            coordinate: {
+                                latitude: coords.latitude,
+                                longitude: coords.longitude
+                            }
+                        }]
+                    });
                 }
                 
             },((err)=> { console.log('error')}), GEOLOCATION_OPTION)
@@ -107,6 +113,7 @@ export default function Home(props){
             customMapStyle={mapstyle}     
             onRegionChange={onRegionChange}       
         >
+        {state.markers.map(item => <CustomMarkers title={item.title} coordinate={item.coordinate} />)}
         </MapView>
         </View>
         </SafeAreaView>
